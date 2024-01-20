@@ -73,8 +73,49 @@ int resultPartOne(){
     return sum;
 }
 
+int resultPartTwo(){
+    std::string line, number;
+    std::ifstream file("input2.txt");
+
+    int result = 0;
+
+    bool count;
+    int prod = 0;
+    while(getline(file, line)){
+        std::vector<std::string> splitLine = split(line, ':');
+        
+        std::vector<std::string> gameSet = split(splitLine[1], ';');
+
+        int rMin, bMin, gMin;
+        rMin = bMin = gMin = -1;
+
+
+        
+        for(std::string set : gameSet){
+            std::vector<std::string> game = split(set, ',');
+
+            for(std::string g : game){
+                std::vector<std::string> tupel = split(g, ' ');
+                int value = std::stoi(tupel[1]);
+                std::string color = tupel[2];
+
+                if(color == "red" && value > rMin)
+                    rMin = value;
+                else if(color == "blue" && value > bMin)
+                    bMin = value;
+                else if(color == "green" && value > gMin)
+                    gMin = value;
+            }
+        }
+
+        prod = rMin * bMin * gMin;
+        result += prod;
+    }
+    file.close();
+    return result;
+}
 
 int main(){
     std::cout << "Part one: " << resultPartOne() << std::endl;
-
+    std::cout << "Part two: " << resultPartTwo() << std::endl;
 }
