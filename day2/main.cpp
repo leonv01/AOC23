@@ -1,94 +1,80 @@
 #include <iostream>
-#include <fstream>
-#include <string>
 #include <vector>
+#include <string>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
 
-const int getId(std::string& line, char delim){
-    std::string temp;
+#define MAX_RED 12
+#define MAX_GREEN 13
+#define MAX_BLUE 14
 
-    int i = 2;
-    for(char c : line){
-        if(c == delim)
-            break;
-        temp += c;
-        i++;
+std::vector<std::string> split(std::string &str, char delim){
+    std::vector<std::string> result;
+    std::stringstream ss(str);
+    std::string token;
+    while(getline(ss, token, delim)){
+        result.push_back(token);
     }
-    line.erase(line.begin(), line.begin() + i);
-    return stoi(temp);
+    return result;
 }
 
-std::vector<std::string> splitSet(std::string& line, char delim){
-    int cnt = 0;
-    std::string tracker = "";
-    char current;
-
-    std::vector<std::string> data = std::vector<std::string>();
-
-    while(1){
-        current = line[cnt++];
-        if(current == delim){
-            data.push_back(tracker);
-            tracker.clear();
-            cnt += 1;
-        }else if(current == '\0'){
-            data.push_back(tracker);
-            break;
-        }else tracker += current;
-    }
-
-    return data;
+void trim(std::string &str){
+    str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
 }
 
-bool validGame(std::string& set, char delim){
+bool isValid(std::string& game){
+    std::vector<std::string> splitGame = split(game, ' ');
 
-    std::string temp = "";
-    std::string val = "";
-    int cnt = 0;
+    std::string tempValue = splitGame[1];
+    
+    int value = std::stoi(tempValue);
+    std::string color = splitGame[2];
 
-    while(1){
-        char c = set[cnt++];
-        if(c == delim){
-            std::cout << temp << "\n";
-            cnt += 1;
-            temp.clear();
-        }
-        else if(cnt >= set.length() - 1){
-            break;
-        }
-        else{
-             temp += c;
-        }
-    }
-
-
-
-    return false;
+    if(color == "red" && value <= MAX_RED){ return true; }
+    else if(color == "green" && value <= MAX_GREEN){ return true; }
+    else if(color == "blue" && value <= MAX_BLUE){ return true; }
+    else return false;
 }
 
 int resultPartOne(){
+    std::string line, number;
     std::ifstream file("input1.txt");
-    std::string line;
 
-    const int redCubeLimit = 12;
-    const int greenCubeLimit = 13;
-    const int blueCubeLimit = 14;
+    int result = 0;
 
-    int gameId = 0;
-
+    bool count;
+    int sum = 0;
     while(getline(file, line)){
-        line.erase(line.begin(), line.begin() + 5);
-        gameId = getId(line, ':');
-        std::vector<std::string> gameSet = splitSet(line, ';');
+        count = true;
+        std::vector<std::string> result = split(line, ':');
+        int gameID = std::stoi(split(result[0], ' ')[1]);
+        std::string splitLine = result[1];
 
-        for(std::string set : gameSet){
-            validGame(set, ',');
+        std::vector<std::string> gameSets = split(splitLine, ';');
+        for(std::string set : gameSets){
+            std::vector<std::string> game = split(set, ',');
+            for(std::string s : game){
+                bool valid = isValid(s);
+                if(!valid){
+                    count = false;
+                    break;
+                }
+            }
+            if(!count){
+                break;
+            }
         }
+        if(count)
+            sum += gameID;
+        
     }
-
-    return 0;
+    file.close();
+    return sum;
 }
 
+
 int main(){
-    
-    return resultPartOne();
+    std::cout << "Part one: " << resultPartOne() << std::endl;
+
 }
